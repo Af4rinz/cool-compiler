@@ -1,0 +1,6 @@
+*.class
+*.tokens
+*.interp
+generator/*.java
+generator/.antlr
+.antlr/
