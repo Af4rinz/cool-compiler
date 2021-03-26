@@ -1,17 +1,17 @@
 grammar Cool;
 program: (classdef';')+ EOF;
-classdef: 'class' TYPE ('inherits' TYPE)? '{' (feature ';')* '}';
+classdef: CLASS TYPE (INHERITS TYPE)? '{' (feature ';')* '}';
 feature: ID '(' (formal (',' formal)* )? ')' ':' TYPE '{' expr '}'
     | ID ':' TYPE ('<-' expr)?;
 expr: ID '<-' expr
     | expr ('@' TYPE)?'.'ID '(' (expr (','expr)* )? ')'
-    | 'if' expr 'then' expr 'else' expr 'fi'
-    | 'while' expr 'loop' expr 'pool'
+    | IF expr THEN expr ELSE expr FI
+    | WHILE expr LOOP expr POOL
     | '{' expr+ '}' 
-    | 'let' ID ':' TYPE ('<-' expr)? (','ID ':' TYPE ('<-' expr)? )* 'in' expr
-    | 'case' expr 'of' (ID ':' TYPE '=>' expr ';')+ 'esac'
-    | 'new' TYPE
-    | 'isvoid' expr
+    | LET ID ':' TYPE ('<-' expr)? (','ID ':' TYPE ('<-' expr)? )* IN expr
+    | CASE expr OF (ID ':' TYPE '=>' expr ';')+ ESAC
+    | NEW TYPE
+    | ISVOID expr
     | expr '+' expr
     | expr '-' expr
     | expr '*' expr
@@ -25,11 +25,30 @@ expr: ID '<-' expr
     | ID
     | INTEGER
     | STRING
-    | 'true'
-    | 'false'
+    | TRUE
+    | FALSE
     ;
 
 formal: ID ':' TYPE;
+
+CLASS: 'class';
+INHERITS: 'inherits';
+IF: 'if';
+THEN: 'then';
+ELSE: 'else';
+FI: 'fi';
+WHILE: 'while';
+LOOP: 'loop';
+POOL: 'pool';
+CASE: 'case';
+ESAC: 'esac';
+OF: 'of';
+LET: 'let';
+IN: 'in';
+NEW: 'new';
+ISVOID: 'isvoid';
+TRUE: 'true';
+FALSE: 'false';
 
 // types start uppercase
 TYPE: [A-Z] [_0-9A-Za-z]*;
