@@ -1,6 +1,9 @@
 grammar Cool;
+@header {
+    package generator;
+}
 program: (classdef';')+ EOF;
-classdef: CLASS TYPE (INHERITS TYPE)? '{' (feature ';')* '}';
+classdef: CLASS className=TYPE (INHERITS classParent=TYPE)? '{' (feature ';')* '}';
 feature: ID '(' (formal (',' formal)* )? ')' ':' TYPE '{' expr '}'
     | ID ':' TYPE ('<-' expr)?;
 expr: ID '<-' expr
