@@ -5,30 +5,30 @@ grammar Cool;
 program: (classdef';')+ EOF;
 classdef: CLASS className=TYPE (INHERITS classParent=TYPE)? '{' (feature ';')* '}';
 feature: (methodDec | fieldDec);
-expr: ID '<-' expr
-    | expr ('@' TYPE)?'.'ID '(' (expr (','expr)* )? ')' // method call
-    | IF expr THEN expr ELSE expr FI // if
-    | WHILE expr LOOP expr POOL // while loop
-    | '{' (expr ';' )+ '}' // block
-    | LET fieldDec (',' fieldDec)* IN expr // let 
-    | CASE expr OF (ID ':' TYPE '=>' expr ';')+ ESAC // case
-    | NEW TYPE // new
-    | '~' expr // negation of int
-    | ISVOID expr // isvoid
-    | expr '+' expr
-    | expr '-' expr
-    | expr '*' expr
-    | expr '/' expr
-    | expr '<' expr
-    | expr '<=' expr
-    | expr '=' expr
-    | NOT expr 
-    | '(' expr ')' // parentheses
-    | ID
-    | INTEGER
-    | STRING
-    | TRUE
-    | FALSE
+expr: ID '<-' expr #assignment
+    | expr ('@' TYPE)?'.'ID '(' (expr (','expr)* )? ')' #methodCall
+    | IF expr THEN expr ELSE expr FI #if
+    | WHILE expr LOOP expr POOL #while
+    | '{' (expr ';' )+ '}' #block
+    | LET fieldDec (',' fieldDec)* IN expr #let 
+    | CASE expr OF (ID ':' TYPE '=>' expr ';')+ ESAC #case
+    | NEW TYPE #new
+    | '~' expr #negate
+    | ISVOID expr #isvoid
+    | expr '+' expr #plus
+    | expr '-' expr #minus
+    | expr '*' expr #multiply
+    | expr '/' expr #divide
+    | expr '<' expr #less
+    | expr '<=' expr #lessequal
+    | expr '=' expr #equal
+    | NOT expr #not
+    | '(' expr ')' #parantheses
+    | ID #id
+    | INTEGER #int
+    | STRING #string
+    | TRUE #true
+    | FALSE #false
     ;
 
 formal: parameterName=ID ':' parameterType=TYPE;
