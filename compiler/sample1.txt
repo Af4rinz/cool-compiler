@@ -1,6 +1,20 @@
 class Main {
+    moon : Moon;
     x : Sally <- (new Sally).copy();
     main() : Sally {
-         x 
+        let pepper : Spice <- ~ salt in x;
+        if i = 0 then 0
+ 			else
+ 			 	if i  = 1 then 1 
+ 			 	else self@Fib.f(i-1) + self@Fib.f(i-2)
+ 			fi fi 	
     };
+};
+class A inherits IO {
+    w: Day <- "wednesday";
+    f(x:Int, y: Day) : Int {
+        new IO.out_string("Lorem ipsum\n");
+        x <-io@IO.in_int();
+        x <- ~ x;
+    }
 };
