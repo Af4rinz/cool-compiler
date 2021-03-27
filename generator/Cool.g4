@@ -6,24 +6,24 @@ program: (classdef';')+ EOF;
 classdef: CLASS className=TYPE (INHERITS classParent=TYPE)? '{' (feature ';')* '}';
 feature: (methodDec | fieldDec);
 expr: ID '<-' expr
-    | expr ('@' TYPE)?'.'ID '(' (expr (','expr)* )? ')'
-    | IF expr THEN expr ELSE expr FI
-    | WHILE expr LOOP expr POOL
-    | nestedStmnt='{' expr+ '}'
-    | LET fieldDec (',' fieldDec)* IN expr ';'
-    | CASE expr OF (ID ':' TYPE '=>' expr ';')+ ESAC
-    | NEW TYPE
-    | ISVOID expr
+    | expr ('@' TYPE)?'.'ID '(' (expr (','expr)* )? ')' // method call
+    | IF expr THEN expr ELSE expr FI // if
+    | WHILE expr LOOP expr POOL // while loop
+    | '{' (expr ';' )+ '}' // block
+    | LET fieldDec (',' fieldDec)* IN expr // let 
+    | CASE expr OF (ID ':' TYPE '=>' expr ';')+ ESAC // case
+    | NEW TYPE // new
+    | '~' expr // negation of int
+    | ISVOID expr // isvoid
     | expr '+' expr
     | expr '-' expr
     | expr '*' expr
     | expr '/' expr
-    | '~' expr
     | expr '<' expr
     | expr '<=' expr
     | expr '=' expr
-    | 'not' expr
-    | '(' expr ')'
+    | NOT expr 
+    | '(' expr ')' // parentheses
     | ID
     | INTEGER
     | STRING
@@ -35,7 +35,7 @@ formal: parameterName=ID ':' parameterType=TYPE;
 fieldDec: fieldName=ID ':' fieldType=TYPE ('<-' expr)?;
 methodDec: methodName=ID '(' ((parameterName+=ID ':' parameterType+=TYPE) 
             (',' parameterName+=ID ':' parameterType+=TYPE)* )? ')' ':' 
-            returnType=TYPE '{' methodBody=expr '}';
+            returnType=TYPE '{' methodBody=expr+ '}';
 
 CLASS: 'class';
 INHERITS: 'inherits';
@@ -53,11 +53,13 @@ LET: 'let';
 IN: 'in';
 NEW: 'new';
 ISVOID: 'isvoid';
+NOT: 'not';
 TRUE: 'true';
 FALSE: 'false';
 
 // types start uppercase
 TYPE: [A-Z] [_0-9A-Za-z]*;
+// identifiers start with lowercase
 ID: [a-z] [_0-9A-Za-z]*;
 STRING: '"' (ESC | ~ ["\\])* '"';
 INTEGER: [0-9]+;
