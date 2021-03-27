@@ -4,14 +4,13 @@ grammar Cool;
 }
 program: (classdef';')+ EOF;
 classdef: CLASS className=TYPE (INHERITS classParent=TYPE)? '{' (feature ';')* '}';
-feature: ID '(' (formal (',' formal)* )? ')' ':' TYPE '{' expr '}'
-    | ID ':' TYPE ('<-' expr)?;
+feature: (methodDec | fieldDec);
 expr: ID '<-' expr
     | expr ('@' TYPE)?'.'ID '(' (expr (','expr)* )? ')'
     | IF expr THEN expr ELSE expr FI
     | WHILE expr LOOP expr POOL
-    | '{' expr+ '}' 
-    | LET ID ':' TYPE ('<-' expr)? (','ID ':' TYPE ('<-' expr)? )* IN expr
+    | nestedStmnt='{' expr+ '}'
+    | LET fieldDec (',' fieldDec)* IN expr ';'
     | CASE expr OF (ID ':' TYPE '=>' expr ';')+ ESAC
     | NEW TYPE
     | ISVOID expr
@@ -32,7 +31,11 @@ expr: ID '<-' expr
     | FALSE
     ;
 
-formal: ID ':' TYPE;
+formal: parameterName=ID ':' parameterType=TYPE;
+fieldDec: fieldName=ID ':' fieldType=TYPE ('<-' expr)?;
+methodDec: methodName=ID '(' ((parameterName+=ID ':' parameterType+=TYPE) 
+            (',' parameterName+=ID ':' parameterType+=TYPE)* )? ')' ':' 
+            returnType=TYPE '{' methodBody=expr '}';
 
 CLASS: 'class';
 INHERITS: 'inherits';
