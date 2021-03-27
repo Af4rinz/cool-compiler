@@ -12,7 +12,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 public class CoolCompiler {
 
     public static void main(String[] args) throws Exception {
-        CharStream stream = CharStreams.fromFileName("D:\\Afarin\\Edu\\Year 3\\Compiler Design\\Project\\Phase 1\\compiler\\sample1.txt");
+        CharStream stream = CharStreams.fromFileName("../samples/sample1.txt");
         CoolLexer lexer = new CoolLexer(stream);
         TokenStream tokens = new CommonTokenStream(lexer);
         CoolParser parser = new CoolParser(tokens);
