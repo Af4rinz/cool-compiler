@@ -14,9 +14,20 @@ class Main {
 };
 class A inherits IO {
     w: Day <- "wednesday";
-    f(x:Int, y: Day) : Int {
+    f(x:Int, w: Day) : Int {
         new IO.out_string("Lorem ipsum\n")
+        let x : Int in 0
         x <-io@IO.in_int()
-        x <- ~ x
+        case x of x : Int => 
+        {
+            if x = 0 then x = 1
+            else {
+                x = 0;
+                w = "Monday";
+            }
+            fi ;
+            let y : Int in 1;
+        };
+        esac
     };
 };
