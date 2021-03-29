@@ -1,20 +1,53 @@
 package compiler;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.antlr.v4.parse.GrammarTreeVisitor.channelsSpec_return;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Vocabulary;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import generator.CoolLexer;
+// import generator.CoolLexer;
 import generator.CoolListener;
 import generator.CoolParser.*;
 
 public class CoolPrinter implements CoolListener{
 	public int ind = 0;
+	public HashMap<String, List<String>> classes = new HashMap<String, List<String>>();
+
+	// handler for inheritance tree
+	public void classInheritance(){
+		for (String par: classes.keySet()){
+			if (!classes.values().stream().anyMatch(l -> l.contains(par)) && par != "Object" ){
+				classes.putIfAbsent("Object", new ArrayList<String>());
+            	classes.get("Object").add(par);
+			}			
+		}
+		System.out.println("\n ------------------ \n Inheritance Tree:");
+		ind = 0;
+		printInheritance("Object");
+	}
+
+	// recursive method to print class names
+	public void printInheritance (String node) {
+		System.out.print('\u2515');
+		printIndent(ind, '\u2501');
+		System.out.println(" " + node);
+		ind += 3;
+		if (classes.containsKey(node)){
+			for (String child : classes.get(node)){
+				printInheritance(child);			
+			}
+		}
+		ind -= 3;
+	}
+
 	// prints indents at beginning of each line
-	public void printIndent (int ind){
+	public void printIndent (int ind, char ch){
 		for (int i = 0; i < ind; i++){
-			System.out.print(" ");
+			System.out.print(ch);
 		}
 	}
 
@@ -38,7 +71,7 @@ public class CoolPrinter implements CoolListener{
 	@Override
 	public void enterProgram(ProgramContext ctx) {
 		System.out.print("program start{\n");
-		printIndent(ind);
+		printIndent(ind, ' ');
         ind += 4;
 		
 	}
@@ -46,19 +79,24 @@ public class CoolPrinter implements CoolListener{
 	@Override
 	public void exitProgram(ProgramContext ctx) {
 		ind -= 4;
-		printIndent(ind);
+		printIndent(ind, ' ');
 		System.out.print("}\n");
+		classInheritance();
 	}
 
 	@Override
 	public void enterClassdef(ClassdefContext ctx) {
-		printIndent(ind);
+		printIndent(ind, ' ');
 		String classString = "class: %s/ class parents: %s, {\n";
 		if (ctx.classParent == null){
 			System.out.print(String.format(classString, ctx.className.getText(), "object"));
+			classes.putIfAbsent("Object", new ArrayList<String>());
+            classes.get("Object").add(ctx.className.getText());
 		}
 		else{
 			System.out.print(String.format(classString, ctx.className.getText(), ctx.classParent.getText()));
+			classes.putIfAbsent(ctx.classParent.getText(), new ArrayList<String>());
+            classes.get(ctx.classParent.getText()).add(ctx.className.getText());
 		}
 		ind += 4;
 	}
@@ -66,7 +104,7 @@ public class CoolPrinter implements CoolListener{
 	@Override
 	public void exitClassdef(ClassdefContext ctx) {
 		ind -= 4;
-		printIndent(ind);
+		printIndent(ind, ' ');
 		System.out.print("}\n");		
 	}
 
@@ -80,7 +118,7 @@ public class CoolPrinter implements CoolListener{
 
 	@Override
 	public void enterMethodDec(MethodDecContext ctx) {
-		printIndent(ind);
+		printIndent(ind, ' ');
 		String methodStr = "class method: %s/ return type=%s{\n";
 		System.out.print(
 				String.format(methodStr, ctx.methodName.getText(), ctx.returnType.getText())
@@ -88,7 +126,7 @@ public class CoolPrinter implements CoolListener{
 		ind+= 4;
 		int argCount = ctx.parameterName.size();
 		if(argCount > 0){
-			printIndent(ind);
+			printIndent(ind, ' ');
 			System.out.print("parameters list= [");
 			for (int i=0; i < argCount; i++){
 				System.out.print(ctx.parameterType.get(i).getText() + " " + ctx.parameterName.get(i).getText());
@@ -103,7 +141,7 @@ public class CoolPrinter implements CoolListener{
 	@Override
 	public void exitMethodDec(MethodDecContext ctx) {
 		ind -= 4;
-		printIndent(ind);
+		printIndent(ind, ' ');
 		System.out.print("}\n");
 	}
 
@@ -119,7 +157,7 @@ public class CoolPrinter implements CoolListener{
 	@Override
 	public void enterFieldDec(FieldDecContext ctx) {
 		
-		printIndent(ind);
+		printIndent(ind, ' ');
 		String fieldStr = "field: %s/ type=%s\n";
 		System.out.print(
 			String.format(fieldStr, ctx.fieldName.getText(), ctx.fieldType.getText())
@@ -204,7 +242,7 @@ public class CoolPrinter implements CoolListener{
 			|| parent instanceof BlockContext
 			|| parent instanceof CaseContext 
 			)){
-				printIndent(ind);
+				printIndent(ind, ' ');
 				ind += 4;
 				System.out.print("nested statement{\n");
 		}
@@ -220,7 +258,7 @@ public class CoolPrinter implements CoolListener{
 			|| parent instanceof CaseContext 
 			)){
 				ind -= 4;
-				printIndent(ind);
+				printIndent(ind, ' ');
 				System.out.print("}\n");
 		}
 		
@@ -291,7 +329,7 @@ public class CoolPrinter implements CoolListener{
 			|| parent instanceof BlockContext
 			|| parent instanceof CaseContext 
 			)){
-				printIndent(ind);
+				printIndent(ind, ' ');
 				ind += 4;
 				System.out.print("nested statement{\n");
 		}
@@ -307,7 +345,7 @@ public class CoolPrinter implements CoolListener{
 			|| parent instanceof CaseContext 
 			)){
 				ind -= 4;
-				printIndent(ind);
+				printIndent(ind, ' ');
 				System.out.print("}\n");
 		}
 		
@@ -354,7 +392,7 @@ public class CoolPrinter implements CoolListener{
 			|| parent instanceof BlockContext
 			|| parent instanceof CaseContext 
 			)){
-				printIndent(ind);
+				printIndent(ind, ' ');
 				ind += 4;
 				System.out.print("nested statement{\n");
 		}
@@ -371,7 +409,7 @@ public class CoolPrinter implements CoolListener{
 			|| parent instanceof CaseContext 
 			)){
 				ind -= 4;
-				printIndent(ind);
+				printIndent(ind, ' ');
 				System.out.print("}\n");
 		}
 		
@@ -386,7 +424,7 @@ public class CoolPrinter implements CoolListener{
 			|| parent instanceof BlockContext
 			|| parent instanceof CaseContext 
 			)){
-				printIndent(ind);
+				printIndent(ind, ' ');
 				ind += 4;
 				System.out.print("nested statement{\n");
 		}
@@ -402,7 +440,7 @@ public class CoolPrinter implements CoolListener{
 			|| parent instanceof CaseContext 
 			)){
 				ind -= 4;
-				printIndent(ind);
+				printIndent(ind, ' ');
 				System.out.print("}\n");
 		}
 		
