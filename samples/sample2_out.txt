@@ -1,0 +1,11 @@
+program start{
+    class: Main/ class parents: object, {
+        field: myint/ type=Int
+    }
+    class: Circle/ class parents: Shape, {
+        field: radius/ type=Double
+    }
+    class: Coin/ class parents: Circle, {
+        field: value/ type=Int
+    }
+}

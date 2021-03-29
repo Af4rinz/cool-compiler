@@ -1,0 +1,11 @@
+class Main{
+    myint : Int;
+};
+
+class Circle inherits Shape {
+    radius : Double;
+};
+
+class Coin inherits Circle {
+    value : Int <- 1;
+};

@@ -1,0 +1,25 @@
+program start{
+    class: Main/ class parents: object, {
+        field: moon/ type=Moon
+        field: x/ type=Sally
+        class method: main/ return type=Sally{
+            field: pepper/ type=Spice
+            nested statement{
+            }
+        }
+    }
+    class: A/ class parents: IO, {
+        field: w/ type=Day
+        class method: f/ return type=Int{
+            parameters list= [Int x, Day w ]
+            field: x/ type=Int
+            nested statement{
+                nested statement{
+                    nested statement{
+                    }
+                }
+                field: y/ type=Int
+            }
+        }
+    }
+}
