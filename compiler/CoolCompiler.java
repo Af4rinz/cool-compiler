@@ -12,14 +12,16 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 public class CoolCompiler {
 
     public static void main(String[] args) throws Exception {
-        CharStream stream = CharStreams.fromFileName("../samples/sample1.txt");
+        String input = "../samples/sample2.txt";
+        CharStream stream = CharStreams.fromFileName(input);
         CoolLexer lexer = new CoolLexer(stream);
         TokenStream tokens = new CommonTokenStream(lexer);
         CoolParser parser = new CoolParser(tokens);
         parser.setBuildParseTree(true);
         ParseTree tree = parser.program();
         ParseTreeWalker walker = new ParseTreeWalker();
-        CoolListener  listener = new CoolPrinter();
+        String output = input.split(".txt")[0] + "_out.txt";
+        CoolListener  listener = new CoolPrinter(output);
         walker.walk(listener, tree);
     }
 }
