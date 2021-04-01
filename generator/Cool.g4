@@ -2,11 +2,14 @@ grammar Cool;
 @header {
     package generator;
 }
+
 program: (classdef';')+ EOF;
+
 classdef: CLASS className=TYPE (INHERITS classParent=TYPE)? '{' (feature ';')* '}';
+
 feature: (methodDec | fieldDec);
-expr: ID '<-' expr #assignment
-    | expr ('@' TYPE)?'.'ID '(' (expr (','expr)* )? ')' #objMethodCall
+
+expr: expr ('@' TYPE)?'.'ID '(' (expr (','expr)* )? ')' #objMethodCall
     | ID '(' (expr (',' expr)* )? ')' # ownMethodCall
     | IF expr THEN expr ELSE expr FI #if
     | WHILE expr LOOP expr POOL #while
@@ -30,14 +33,18 @@ expr: ID '<-' expr #assignment
     | STRING #string
     | TRUE #true
     | FALSE #false
+    | ID '<-' expr #assignment
     ;
 
 formal: parameterName=ID ':' parameterType=TYPE;
+
 fieldDec: fieldName=ID ':' fieldType=TYPE ('<-' expr)?;
+
 methodDec: methodName=ID '(' ((parameterName+=ID ':' parameterType+=TYPE) 
             (',' parameterName+=ID ':' parameterType+=TYPE)* )? ')' ':' 
-            returnType=TYPE '{' methodBody=expr+ '}';
+            returnType=TYPE '{' methodBody=expr '}';
 
+// Lexers
 CLASS: C L A S S;
 INHERITS: I N H E R I T S;
 IF: I F;
@@ -65,12 +72,12 @@ LINECOMMENT: '--' (~ '\n')* '\n'? -> skip;
 TYPE: [A-Z] [_0-9A-Za-z]*;
 // identifiers start with lowercase
 ID: [a-z] [_0-9A-Za-z]*;
+
 STRING: '"' (ESC | ~ ["\\])* '"';
 INTEGER: [0-9]+;
 
 // escape sequences
 fragment ESC: '\\' (["\\/bfnrt]);
-
 
 WS: [ \t\r\n\f]+ -> skip;
 
