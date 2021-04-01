@@ -6,7 +6,8 @@ program: (classdef';')+ EOF;
 classdef: CLASS className=TYPE (INHERITS classParent=TYPE)? '{' (feature ';')* '}';
 feature: (methodDec | fieldDec);
 expr: ID '<-' expr #assignment
-    | expr ('@' TYPE)?'.'ID '(' (expr (','expr)* )? ')' #methodCall
+    | expr ('@' TYPE)?'.'ID '(' (expr (','expr)* )? ')' #objMethodCall
+    | ID '(' (expr (',' expr)* )? ')' # ownMethodCall
     | IF expr THEN expr ELSE expr FI #if
     | WHILE expr LOOP expr POOL #while
     | '{' (expr ';' )+ '}' #block
@@ -37,25 +38,28 @@ methodDec: methodName=ID '(' ((parameterName+=ID ':' parameterType+=TYPE)
             (',' parameterName+=ID ':' parameterType+=TYPE)* )? ')' ':' 
             returnType=TYPE '{' methodBody=expr+ '}';
 
-CLASS: 'class';
-INHERITS: 'inherits';
-IF: 'if';
-THEN: 'then';
-ELSE: 'else';
-FI: 'fi';
-WHILE: 'while';
-LOOP: 'loop';
-POOL: 'pool';
-CASE: 'case';
-ESAC: 'esac';
-OF: 'of';
-LET: 'let';
-IN: 'in';
-NEW: 'new';
-ISVOID: 'isvoid';
-NOT: 'not';
-TRUE: 'true';
-FALSE: 'false';
+CLASS: C L A S S;
+INHERITS: I N H E R I T S;
+IF: I F;
+THEN: T H E N;
+ELSE: E L S E;
+FI: F I;
+WHILE: W H I L E;
+LOOP: L O O P;
+POOL: P O O L;
+CASE: C A S E;
+ESAC: E S A C;
+OF: O F;
+LET: L E T;
+IN: I N;
+NEW: N E W;
+ISVOID: I S V O I D;
+NOT: N O T;
+TRUE: 't' R U E;
+FALSE: 'f' A L S E;
+
+COMMENT: '(*' (COMMENT | .)*? '*)' -> skip;
+LINECOMMENT: '--' (~ '\n')* '\n'? -> skip;
 
 // types start uppercase
 TYPE: [A-Z] [_0-9A-Za-z]*;
@@ -67,5 +71,31 @@ INTEGER: [0-9]+;
 // escape sequences
 fragment ESC: '\\' (["\\/bfnrt]);
 
-LINECOMMENT: '--' (~ '\n')* '\n'? -> skip;
+
 WS: [ \t\r\n\f]+ -> skip;
+
+// letter fragments
+fragment A: [aA];
+fragment B: [bB];
+fragment C: [cC];
+fragment D: [dD];
+fragment E: [eE];
+fragment F: [fF];
+fragment G: [gG];
+fragment H: [hH];
+fragment I: [iI];
+fragment J: [jJ];
+fragment K: [kK];
+fragment L: [lL];
+fragment M: [mM];
+fragment N: [nN];
+fragment O: [oO];
+fragment P: [pP];
+fragment R: [rR];
+fragment S: [sS];
+fragment T: [tT];
+fragment U: [uU];
+fragment V: [vV];
+fragment W: [wW];
+fragment Y: [yY];
+
