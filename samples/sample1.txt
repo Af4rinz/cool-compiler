@@ -2,32 +2,36 @@ class Main {
     moon : Moon;
     x : Sally <- (new Sally).copy();
     main() : Sally {
-        let pepper : Spice in {
-            pepper <- ~ salt;
+        {
+            let pepper : Spice in {
+                pepper <- ~ salt;
+            };
+            if i = 0 then x <- io@IO.out_string(x)
+                else
+                    if i  = 1 then 1 
+                    else self@Fib.f(i-1) + self@Fib.f(i-2)
+                fi fi; 	
         }
-        if i = 0 then x <- io@IO.out_string(x)
- 			else
- 			 	if i  = 1 then 1 
- 			 	else self@Fib.f(i-1) + self@Fib.f(i-2)
- 			fi fi 	
     };
 };
 class A inherits IO {
     w: Day <- "wednesday";
     f(x:Int, w: Day) : Int {
-        new IO.out_string("Lorem ipsum\n")
-        let x : Int in 0
-        x <-io@IO.in_int()
-        case x of x : Int => 
         {
-            if x = 0 then x = 1
-            else {
-                x = 0;
-                w = "Monday";
-            }
-            fi ;
-            let y : Int in 1;
-        };
-        esac
+            new IO.out_string("Lorem ipsum\n");
+            let x : Int in 0;
+            x <-io@IO.in_int();
+            case x of x : Int => 
+            {
+                if x = 0 then x = 1
+                else {
+                    x = 0;
+                    w = "Monday";
+                }
+                fi ;
+                let y : Int in 1;
+            };
+        esac;
+        }
     };
 };
