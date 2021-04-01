@@ -16,11 +16,13 @@ import generator.CoolParser.*;
 
 public class CoolPrinter implements CoolListener{
 	FileWriter fw;
+	// indentation level (multiples of 4)
 	public int ind = 0;
+	// hashmap of all classes in program and their children
 	public HashMap<String, List<String>> classes = new HashMap<String, List<String>>();
 
+	// initialise filewriter for output
 	public CoolPrinter (String path){
-		// initialise filewriter
 		try {
 			fw = new FileWriter(path);
 		} catch (IOException err) {
@@ -28,6 +30,7 @@ public class CoolPrinter implements CoolListener{
 		}
 	}
 
+	// writer function to generate output
 	public void writeToFile(String str) {
         try {
             fw.write(str);
@@ -497,11 +500,22 @@ public class CoolPrinter implements CoolListener{
 	}
 
 	@Override
-	public void enterMethodCall(MethodCallContext ctx) {
+	public void enterObjMethodCall(ObjMethodCallContext ctx) {
+		
 	}
 
 	@Override
-	public void exitMethodCall(MethodCallContext ctx) {
+	public void exitObjMethodCall(ObjMethodCallContext ctx) {
+		
+	}
+
+	@Override
+	public void enterOwnMethodCall(OwnMethodCallContext ctx) {
+		
+	}
+
+	@Override
+	public void exitOwnMethodCall(OwnMethodCallContext ctx) {
 		
 	}
    
