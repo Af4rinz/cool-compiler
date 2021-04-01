@@ -1,0 +1,78 @@
+program start{
+    class: Test/ class parents: object, {
+    }
+    class: List/ class parents: IO, {
+        class method: cons/ return type=Cons{
+            parameters list= [Int hd ]
+            field: new_cell/ type=Cons
+        }
+        class method: car/ return type=Int{
+        }
+        class method: cdr/ return type=List{
+        }
+        class method: rev/ return type=List{
+        }
+        class method: sort/ return type=List{
+        }
+        class method: insert/ return type=List{
+            parameters list= [Int i ]
+        }
+        class method: rcons/ return type=List{
+            parameters list= [Int i ]
+        }
+        class method: print_list/ return type=Object{
+        }
+    }
+    class: Cons/ class parents: List, {
+        field: xcar/ type=Int
+        field: xcdr/ type=List
+        class method: isNil/ return type=Bool{
+        }
+        class method: init/ return type=Cons{
+            parameters list= [Int hd, List tl ]
+        }
+        class method: car/ return type=Int{
+        }
+        class method: cdr/ return type=List{
+        }
+        class method: rev/ return type=List{
+        }
+        class method: sort/ return type=List{
+        }
+        class method: insert/ return type=List{
+            parameters list= [Int i ]
+        }
+        class method: rcons/ return type=List{
+            parameters list= [Int i ]
+        }
+        class method: print_list/ return type=Object{
+        }
+    }
+    class: Nil/ class parents: List, {
+        class method: isNil/ return type=Bool{
+        }
+        class method: rev/ return type=List{
+        }
+        class method: sort/ return type=List{
+        }
+        class method: insert/ return type=List{
+            parameters list= [Int i ]
+        }
+        class method: rcons/ return type=List{
+            parameters list= [Int i ]
+        }
+        class method: print_list/ return type=Object{
+        }
+    }
+    class: Main/ class parents: IO, {
+        field: l/ type=List
+        class method: iota/ return type=List{
+            parameters list= [Int i ]
+            field: j/ type=Int
+            nested statement{
+            }
+        }
+        class method: main/ return type=Object{
+        }
+    }
+}

@@ -5,6 +5,8 @@ program start{
         class method: main/ return type=Sally{
             field: pepper/ type=Spice
             nested statement{
+                nested statement{
+                }
             }
         }
     }
@@ -16,9 +18,11 @@ program start{
             nested statement{
                 nested statement{
                     nested statement{
+                        nested statement{
+                        }
                     }
+                    field: y/ type=Int
                 }
-                field: y/ type=Int
             }
         }
     }
