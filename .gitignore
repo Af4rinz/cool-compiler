@@ -4,3 +4,5 @@
 generator/*.java
 generator/.antlr
 .antlr/
+*.iml
+.idea
