@@ -1,25 +1,29 @@
 package compiler;
 
+import compiler.symbols.Symbol;
+
 import java.util.LinkedList;
 
-public class ScopeStructure {
+public class Scope {
     private final String name;
-    private final ScopeStructure parent;
+    private final Scope parent;
     private final Table table = new Table();
-    private final LinkedList<ScopeStructure> children = new LinkedList<>();
+    private final LinkedList<Scope> children = new LinkedList<>();
     private final int depth ;
+    private String type;
 
-    public ScopeStructure(String name, ScopeStructure parent, int depth) {
+    public Scope(String name, Scope parent, int depth, String type) {
         this.name = name;
         this.parent = parent;
         this.depth = depth;
+        this.type = type;
     }
 
-    public void addChild(ScopeStructure child){
+    public void addChild(Scope child){
         children.add(child);
     }
 
-    public void insert(String key,Symbol value){
+    public void insert(String key, Symbol value){
         table.insert(key, value);
     }
 
@@ -31,7 +35,7 @@ public class ScopeStructure {
         return name;
     }
 
-    public ScopeStructure getParent() {
+    public Scope getParent() {
         return parent;
     }
 
@@ -39,7 +43,7 @@ public class ScopeStructure {
         return table;
     }
 
-    public LinkedList<ScopeStructure> getChildren() {
+    public LinkedList<Scope> getChildren() {
         return children;
     }
 

@@ -1,4 +1,4 @@
-package compiler;
+package compiler.symbols;
 
 public class While extends Symbol{
     @Override

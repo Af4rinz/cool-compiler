@@ -1,5 +1,7 @@
 package compiler;
 
+import compiler.symbols.Symbol;
+
 import java.util.HashMap;
 
 public class Table {

@@ -1,10 +1,11 @@
-package compiler;
+package compiler.symbols;
 
 public class Property extends Symbol{
     private final String name;
     private final String type;
 
-    public Property(String name, String type) {
+    public Property(String name, String type, int row, int column) {
+        super(row, column);
         this.name = name;
         this.type = type;
     }

@@ -1,12 +1,10 @@
-package compiler;
-
-import org.stringtemplate.v4.ST;
+package compiler.symbols;
 
 public class Statement extends Symbol {
     private final String name;
 
-    public Statement(String name) {
-        this.name = name;
+    public Statement(String name, int row, int column) {
+        super(row, column);this.name = name;
     }
 
     @Override
