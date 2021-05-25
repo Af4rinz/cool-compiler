@@ -7,7 +7,7 @@ program: (classdef';')+ EOF;
 
 classdef: CLASS className=TYPE (INHERITS classParent=TYPE)? '{' (feature ';')* '}';
 
-feature: (methodDec | fieldDec);
+feature: methodDec | fieldDec ;
 
 expr: expr ('@' TYPE)?'.'ID '(' (expr (','expr)* )? ')' #objMethodCall
     | ID '(' (expr (',' expr)* )? ')' # ownMethodCall
