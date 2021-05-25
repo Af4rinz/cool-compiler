@@ -1,9 +1,7 @@
 package compiler;
 
+import compiler.symbols.*;
 import compiler.symbols.Class;
-import compiler.symbols.Method;
-import compiler.symbols.Param;
-import compiler.symbols.Symbol;
 import generator.*;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -12,8 +10,25 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import java.util.List;
 
 class Indexer implements CoolListener {
-    private Scope currentScope = new Scope("MAIN", null, 0);
+    private Scope currentScope = new Scope("MAIN", null, 0, "MAIN");
     private int currentDepth = 0;
+    private ScopeMap scopeMap = new ScopeMap();
+
+    private boolean checkScope(Scope scope, String key, String type) {
+        if (scope == null) return false;
+        switch (type) {
+            case "class":
+                if (scope.lookup(key + "_class")) return true;
+                break;
+            case "method":
+                if (scope.lookup(key + "_method")) return true;
+                break;
+            case "field":
+                if (scope.lookup(key + "_field")) return true;
+                break;
+        }
+        return checkScope(scope.getParent(), key, type);
+    }
 
     @Override
     public void enterProgram(CoolParser.ProgramContext ctx) {
@@ -27,19 +42,22 @@ class Indexer implements CoolListener {
 
     @Override
     public void enterClassdef(CoolParser.ClassdefContext ctx) {
-        Symbol freshClass;
-        List typeList = ctx.TYPE();
-        String name = typeList.get(0).toString();
-        if (typeList.size() == 1)
-            freshClass = new Class(name);
-        else
-            freshClass = new Class(name, typeList.get(1).toString());
-
-        currentScope.insert(name, freshClass);
-        Scope freshScope = new Scope(name, currentScope, currentDepth + 1);
+        Class freshClass;
+        String name = ctx.TYPE().get(0).toString();
+        int row = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+        String key = checkScope(currentScope, name, "class")
+                ? String.format("%s_class_%d_%d", name, row, column)
+                : String.format("%s_class", name);
+        freshClass = ctx.TYPE().size() == 2
+                ? new Class(name, ctx.TYPE().get(1).toString(), row, column)
+                : new Class(name, "Object", row, column);
+        currentScope.insert(key, freshClass);
+        currentDepth++;
+        Scope freshScope = new Scope(key, currentScope, currentDepth, "class");
         currentScope.addChild(freshScope);
         currentScope = freshScope;
-        currentDepth++;
+        scopeMap.insertScope(key, currentScope);
     }
 
     @Override
@@ -90,12 +108,22 @@ class Indexer implements CoolListener {
 
     @Override
     public void enterWhile(CoolParser.WhileContext ctx) {
-
+        int row = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        String name = String.format("while_%d_%d", row, col);
+        Statement statement = new Statement(name, row, col);
+        currentScope.insert(name, statement);
+        currentDepth++;
+        Scope freshScope = new Scope(name, currentScope, currentDepth, "statement");
+        currentScope.addChild(freshScope);
+        currentScope = freshScope;
+        scopeMap.insertScope(name, currentScope);
     }
 
     @Override
     public void exitWhile(CoolParser.WhileContext ctx) {
-
+        currentScope = currentScope.getParent();
+        currentDepth--;
     }
 
     @Override
@@ -130,7 +158,16 @@ class Indexer implements CoolListener {
 
     @Override
     public void enterLet(CoolParser.LetContext ctx) {
-
+        List<CoolParser.FieldDecContext> fieldList = ctx.fieldDec();
+        for (CoolParser.FieldDecContext f : fieldList) {
+            String name = f.fieldName.toString();
+            int row = ctx.getStart().getLine();
+            int col = ctx.getStart().getCharPositionInLine();
+            String key = checkScope(currentScope, name, "class")
+                    ? String.format("%s_variable_%d_%d", name, row, col)
+                    : String.format("%s_variable", name);
+            currentScope.insert(key, new Var(name, f.fieldType.toString(), row, col));
+        }
     }
 
     @Override
@@ -170,12 +207,23 @@ class Indexer implements CoolListener {
 
     @Override
     public void enterIf(CoolParser.IfContext ctx) {
+        int row = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        String name = String.format("if_%d_%d", row, col);
+        Statement statement = new Statement(name, row, col);
+        currentScope.insert(name, statement);
+        currentDepth++;
+        Scope freshScope = new Scope(name, currentScope, currentDepth, "if");
+        currentScope.addChild(freshScope);
+        currentScope = freshScope;
+        scopeMap.insertScope(name, currentScope);
 
     }
 
     @Override
     public void exitIf(CoolParser.IfContext ctx) {
-
+        currentDepth--;
+        currentScope = currentScope.getParent();
     }
 
     @Override
@@ -310,7 +358,14 @@ class Indexer implements CoolListener {
 
     @Override
     public void enterFieldDec(CoolParser.FieldDecContext ctx) {
-
+        String key;
+        String name = ctx.ID().toString();
+        String type = ctx.TYPE().toString();
+        int row = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        key = checkScope(currentScope, name, "field")
+                ? String.format("%s_field_%d_%d", name, row, col) : String.format("%s_parameter", name);
+        currentScope.insert(key, new Property(name, type, row, col));
     }
 
     @Override
@@ -322,22 +377,35 @@ class Indexer implements CoolListener {
     public void enterMethodDec(CoolParser.MethodDecContext ctx) {
         List<TerminalNode> idList = ctx.ID(), typeList = ctx.TYPE();
         String name = idList.get(0).toString(), returnType = typeList.get(typeList.size() - 1).toString();
-        Method method = new Method(name, returnType);
-        Scope freshScope = new Scope(name, currentScope, currentDepth + 1);
-        for (int i = 1, j = 0; i < idList.size(); j = (++i) - 1) {
-            String paramName = idList.get(i).toString(), paramType = typeList.get(j).toString();
-            method.addParam(paramName);
-            freshScope.insert(paramName, new Param(paramName, paramType));
-        }
+        int row = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+        String key = checkScope(currentScope, name, "class")
+                ? String.format("%s_class_%d_%d", name, row, column)
+                : String.format("%s_class", name);
+        Method method = new Method(name, returnType, row, column);
+        for (int i = 1; i < idList.size(); i++)
+            method.addParam(idList.get(i).toString());
         currentScope.insert(name, method);
-        currentScope.addChild(freshScope);
         currentDepth++;
+        Scope freshScope = new Scope(name, currentScope, currentDepth, "method");
+        for (int i = 1, j = 0; i < idList.size(); j = (++i) - 1) {
+            String paramName = idList.get(i).toString();
+            String paramType = typeList.get(j).toString();
+            String paramKey = checkScope(currentScope, paramName, "parameter")
+                    ? String.format("%s_parameter_%d_%d", paramName, row, column)
+                    : String.format("%s_parameter", paramName);
+            Param p = new Param(paramName, paramType, row, column);
+            freshScope.insert(paramKey, p);
+        }
+        currentScope.addChild(freshScope);
         currentScope = freshScope;
+        scopeMap.insertScope(String.format("%s_%s", name, currentScope.getParent().getName()), currentScope);
     }
 
     @Override
     public void exitMethodDec(CoolParser.MethodDecContext ctx) {
-
+        currentDepth--;
+        currentScope = currentScope.getParent();
     }
 
     @Override
