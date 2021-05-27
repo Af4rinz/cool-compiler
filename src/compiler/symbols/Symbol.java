@@ -1,10 +1,10 @@
 package compiler.symbols;
 
-public class Symbol{
+public class Symbol {
     private int row;
     private int column;
 
-    public Symbol(){
+    public Symbol() {
 
     }
 
@@ -12,8 +12,9 @@ public class Symbol{
         this.row = row;
         this.column = column;
     }
+
     @Override
-    public String toString(){
+    public String toString() {
         return "";
     }
 }

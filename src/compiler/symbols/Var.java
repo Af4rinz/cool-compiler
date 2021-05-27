@@ -14,4 +14,8 @@ public class Var extends Symbol {
     public String toString() {
         return String.format("Var name: %s Var type: %s", name, type);
     }
+
+    public String getType() {
+        return type;
+    }
 }

@@ -1,6 +1,6 @@
 package compiler.symbols;
 
-public class Property extends Symbol{
+public class Property extends Symbol {
     private final String name;
     private final String type;
 
@@ -11,7 +11,11 @@ public class Property extends Symbol{
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return String.format("Field name: %s type: %s", name, type);
+    }
+
+    public String getType() {
+        return type;
     }
 }

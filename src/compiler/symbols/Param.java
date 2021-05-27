@@ -14,4 +14,8 @@ public class Param extends Symbol {
     public String toString() {
         return String.format("Param name: %s Param Type: %s", name, type);
     }
+
+    public String getType() {
+        return type;
+    }
 }

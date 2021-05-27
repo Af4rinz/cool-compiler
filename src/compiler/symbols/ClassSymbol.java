@@ -1,19 +1,23 @@
 package compiler.symbols;
 
-public class Class extends Symbol{
+public class ClassSymbol extends Symbol {
     private final String name;
     private final String parent;
 
-    public Class(String name, int row, int column) {
+    public ClassSymbol(String name, int row, int column) {
         super(row, column);
         this.name = name;
-        this.parent = "object";
+        this.parent = "Object";
     }
 
-    public Class(String name, String parent, int row, int column) {
+    public ClassSymbol(String name, String parent, int row, int column) {
         super(row, column);
         this.name = name;
         this.parent = parent;
+    }
+
+    public String getParent() {
+        return parent;
     }
 
     @Override

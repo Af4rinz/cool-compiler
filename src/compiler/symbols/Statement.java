@@ -4,7 +4,8 @@ public class Statement extends Symbol {
     private final String name;
 
     public Statement(String name, int row, int column) {
-        super(row, column);this.name = name;
+        super(row, column);
+        this.name = name;
     }
 
     @Override
