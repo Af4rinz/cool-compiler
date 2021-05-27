@@ -72,7 +72,7 @@ public class Handler implements CoolListener, Detector {
 
     @Override
     public void exitClassdef(CoolParser.ClassdefContext ctx) {
-        currentScope=currentScope.getParent();
+        currentScope = currentScope.getParent();
     }
 
     @Override
@@ -107,7 +107,25 @@ public class Handler implements CoolListener, Detector {
 
     @Override
     public void enterObjMethodCall(CoolParser.ObjMethodCallContext ctx) {
-
+        String newed = "", parent = "";
+        int row = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+        if (ctx.children.get(0).getChildCount() == 3)
+            newed = ctx.children.get(0).getChild(0).toString();
+        if (ctx.children.get(0).getChildCount() == 1) {
+            String objName = ctx.children.get(0).getChild(0).toString();
+            newed = FindClassName(currentScope, objName);
+            if (newed == null)
+                return;
+        }
+        if (ctx.TYPE() != null)
+            parent = ctx.TYPE().toString();
+        String name = ctx.ID().toString();
+        if (parent.equals("")) {
+            if (!lookUpScopes(scopeMap.getScope(newed + "_class"), newed + "_method"))
+                printUndefinedError(name, "method", row, column);
+        } else if (!lookUpScopes(scopeMap.getScope(parent + "_class"), name + "_method"))
+            printUndefinedError(name, "method", row, column);
     }
 
     @Override
@@ -137,12 +155,15 @@ public class Handler implements CoolListener, Detector {
 
     @Override
     public void enterWhile(CoolParser.WhileContext ctx) {
-
+        int row = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+        String name = String.format("while_%d_%d", row, column);
+        currentScope = scopeMap.getScope(name);
     }
 
     @Override
     public void exitWhile(CoolParser.WhileContext ctx) {
-
+        currentScope = currentScope.getParent();
     }
 
     @Override
@@ -177,7 +198,19 @@ public class Handler implements CoolListener, Detector {
 
     @Override
     public void enterLet(CoolParser.LetContext ctx) {
-
+        for (CoolParser.FieldDecContext f : ctx.fieldDec()) {
+            String name = f.ID().toString();
+            String type = f.TYPE().toString();
+            int row = ctx.getStart().getLine();
+            int column = ctx.getStart().getCharPositionInLine();
+            String reDefinedName = name + "_variable_" + row + "_" + column;
+            String redef = String.format("%s_%d_%d", name, row, column);
+            if (currentScope.lookup(redef))
+                printRedefineError(name, "variable", row, column);
+            if (!type.equals("Int") && !type.equals("String") && !type.equals("Bool") && !type.equals("Object"))
+                if (!lookUpScopes(scopeMap.getScope("program"), type + "_class"))
+                    printTypeNotFoundError(type, row, column);
+        }
     }
 
     @Override
@@ -217,7 +250,10 @@ public class Handler implements CoolListener, Detector {
 
     @Override
     public void enterIf(CoolParser.IfContext ctx) {
-
+        int row = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+        String name = String.format("if_%d_%d", row, column);
+        currentScope = scopeMap.getScope(name);
     }
 
     @Override
@@ -237,7 +273,11 @@ public class Handler implements CoolListener, Detector {
 
     @Override
     public void enterOwnMethodCall(CoolParser.OwnMethodCallContext ctx) {
-
+        String methodName = ctx.ID().toString();
+        int row = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+        if (!lookUpScopes(currentScope, methodName + "_method"))
+            printUndefinedError(methodName, "method", row, column);
     }
 
     @Override
@@ -247,7 +287,12 @@ public class Handler implements CoolListener, Detector {
 
     @Override
     public void enterNew(CoolParser.NewContext ctx) {
-
+        String type = ctx.TYPE().toString();
+        int row = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+        if (!type.equals("Int") && !type.equals("String") && !type.equals("Bool") && !type.equals("Object"))
+            if (!lookUpScopes(scopeMap.getScope("program"), type + "_class"))
+                printUndefinedError(type, "class", row, column);
     }
 
     @Override
@@ -257,7 +302,12 @@ public class Handler implements CoolListener, Detector {
 
     @Override
     public void enterAssignment(CoolParser.AssignmentContext ctx) {
-
+        String name = ctx.ID().toString();
+        int row = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+        if (!lookUpScopes(currentScope, name + "_variable") && !lookUpScopes(currentScope, name + "_field")
+                && !lookUpScopes(currentScope, name + "_parameter"))
+            printUndefinedError(name, "variable", row, column);
     }
 
     @Override
@@ -357,7 +407,14 @@ public class Handler implements CoolListener, Detector {
 
     @Override
     public void enterFieldDec(CoolParser.FieldDecContext ctx) {
-
+        String name = ctx.ID().toString() + "_field";
+        String type = ctx.TYPE().toString();
+        int row = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+        String redef = String.format("%s_%d_%d", name, row, column);
+        if (currentScope.lookup(redef)) {
+            printRedefineError(name, "field", row, column);
+        }
     }
 
     @Override
@@ -367,12 +424,31 @@ public class Handler implements CoolListener, Detector {
 
     @Override
     public void enterMethodDec(CoolParser.MethodDecContext ctx) {
-
+        List<TerminalNode> idList = ctx.ID();
+        List<TerminalNode> typeList = ctx.TYPE();
+        String name = idList.get(0).toString() + "_method";
+        String type = typeList.get(0).toString();
+        int row = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+        String redef = String.format("%s_%d_%d", name, row, column);
+        if (currentScope.lookup(redef)) {
+            printRedefineError(name, "method", row, column);
+            currentScope = scopeMap.getScope(redef + "_" + currentScope.getName());
+        } else {
+            currentScope = scopeMap.getScope(name + "_" + currentScope.getName());
+        }
+        for (int i = 1, j = 0; i < idList.size(); j = (++i) - 1) {
+            String paramName = idList.get(i).toString() + "_parameter";
+            String paramType = typeList.get(j).toString();
+            redef = String.format("%s_%d_%d", paramName, row, column);
+            if (currentScope.lookup(redef))
+                printRedefineError(paramName, "parameter", row, column);
+        }
     }
 
     @Override
     public void exitMethodDec(CoolParser.MethodDecContext ctx) {
-
+        currentScope = currentScope.getParent();
     }
 
     @Override
