@@ -1,8 +1,11 @@
 *.class
-*.tokens
-*.interp
+gen/*.tokens
+gen/*.interp
 generator/*.java
 generator/.antlr
 .antlr/
 *.iml
 .idea
+docs.pdf
+phase_2.pdf
+out/

@@ -144,12 +144,25 @@ public class CoolPrinter implements CoolListener{
 	}
 
 	@Override
-	public void enterFeature(FeatureContext ctx) {
+	public void enterMethod(MethodContext ctx) {
+
 	}
 
 	@Override
-	public void exitFeature(FeatureContext ctx) {
+	public void exitMethod(MethodContext ctx) {
+
 	}
+
+	@Override
+	public void enterField(FieldContext ctx) {
+
+	}
+
+	@Override
+	public void exitField(FieldContext ctx) {
+
+	}
+
 
 	@Override
 	public void enterMethodDec(MethodDecContext ctx) {
